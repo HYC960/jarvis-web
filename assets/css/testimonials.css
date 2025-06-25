@@ -1,0 +1,162 @@
+/* Add this to your style.css */
+.testimonials {
+  padding: 5rem 2rem;
+  background-color: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-x: auto;
+  padding: 1rem 0;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* For Firefox */
+}
+
+.testimonials-container::-webkit-scrollbar {
+  display: none; /* For Chrome/Safari */
+}
+
+.testimonial-card {
+  min-width: 300px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  scroll-snap-align: start;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+.testimonial-card:nth-child(1) { animation-delay: 0.2s; }
+.testimonial-card:nth-child(2) { animation-delay: 0.4s; }
+.testimonial-card:nth-child(3) { animation-delay: 0.6s; }
+.testimonial-card:nth-child(4) { animation-delay: 0.8s; }
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.quote-icon {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.1);
+}
+
+.testimonial-text {
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.reviewer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stars {
+  color: #fff;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+
+.reviewer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.reviewer-details h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+
+.reviewer-details p {
+  color: #bbb;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .testimonials-container {
+    padding-bottom: 2rem;
+  }
+  
+  .testimonial-card {
+    min-width: 85%;
+  }
+}
+
+.course-price {
+  margin: 20px 0;
+  font-size: 1.4rem;
+  color: #00fff7;
+  font-weight: bold;
+  animation: pop-in 0.8s ease-out;
+}
+
+.course-price .actual-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 10px;
+}
+
+.course-price .discounted-price {
+  color: #00ff9f;
+  font-size: 1.6rem;
+}
+
+.course-price .offer-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #ff5757;
+  margin-top: 5px;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.course-rating {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: gold;
+}

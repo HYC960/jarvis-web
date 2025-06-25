@@ -1,0 +1,79 @@
+# Project JARVIS – AI Assistant Course
+
+Welcome to **Project JARVIS**, your ultimate AI Assistant building course using Python, voice automation, and real-world tools.
+
+## 🚀 Hero Section
+
+**Welcome to Project JARVIS**  
+Learn to build your own AI Assistant using Python, voice automation, and futuristic tools.  
+🧪 100% practical & hands-on.
+
+[Get Started](#overview)
+
+## 📘 Course Overview
+
+Learn to build your own AI assistant just like JARVIS using Python. This course is beginner-friendly and packed with:
+- ✅ 17+ Chapters
+- 📂 Source Code
+- 🛠 Practical Projects
+- 🎓 Lifetime Access
+- 🧠 AI Integration
+- 🤖 Voice Control
+
+**Rating:** ⭐ 4.9/5.0 (350+ Reviews)  
+**Price:** ~~₹1499~~ → **₹499** 🔥 Limited Time Offer
+
+[Buy Now](#)
+
+## ✨ Features
+
+This isn't just a course — it's your gateway to building the smartest Python-based assistant.
+
+- 🧠 **AI-Powered Command Flow** – Smart response with GPT/Cohere
+- ⚙️ **Real-Time Execution** – Async/sync multithreaded handling
+- 📁 **Smart File Manager** – Voice controlled with keyword matching
+- 🖥️ **Vision + Voice** – Object detection + Whisper voice commands
+- 📦 **Complete Source Code** – UI + install guide included
+- 🎓 **Lifetime Access** – With certificate generator
+
+## 📚 Course Resources
+
+- 💻 **Source Code** – Full project files
+- 🧾 **Notes PDF** – Concepts and documentation
+- 🛠️ **Setup Scripts** – Auto install dependencies
+- 🎥 **Demo Video** – Feature walkthrough
+- 🧠 **AI Tools** – ML models & datasets
+- 📦 **Bundle ZIP** – All-in-one download
+
+## 🤖 Jarvis Web Assistant Interface
+
+An embedded chatbot that says:
+> *Hello! I'm Jarvis Web Assistant. How can I assist you today?*
+
+## 👨‍💻 Meet the Creator
+
+**Kaif Ansari** – AI Developer | Creator of Project JARVIS
+
+> "I'm passionate about building real-world automation systems. After years of building smart tools, I created Project JARVIS to help others like you — fast, practical, and future-proof."
+
+### Skills:
+`#Python` `#AI` `#Automation` `#Jarvis` `#OpenSource`
+
+## ❤️ Testimonials
+
+> *This course is so good! I made my own JARVIS in just 12 days.* – Rahul Sharma  
+> *Best course ever! Now I can make my own AI.* – Priya M.  
+> *I was scared of AI but now I understand.* – Amit K.  
+> *Worth every rupee! This one is different.* – Sunil N.  
+> *Assignments are helpful. I learn by doing.* – Tanvi P.  
+> *Now I feel confident.* – Rohit D.
+
+## 🔗 Footer
+
+Build your own AI assistant in Python with modern automation tools and techniques.
+
+**Quick Links:** Home | Course | Features | Resources | About Creator
+
+**Contact:** kaif.web.developer@gmail.com
+
+© 2025 Kaif Ansari. All rights reserved.
