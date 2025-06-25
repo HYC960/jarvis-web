@@ -60,6 +60,63 @@ document.addEventListener('DOMContentLoaded', function() {
         { sender: 'ai', text: "# Hello! I'm JARVIS Web Assistant. How can I assist you today?" }
     ];
 
+    // Create lightbox element for images
+    const lightbox = document.createElement('div');
+    lightbox.className = 'image-lightbox';
+    lightbox.innerHTML = `
+        <span class="close-btn">&times;</span>
+        <button class="nav-btn prev-btn">&larr;</button>
+        <button class="nav-btn next-btn">&rarr;</button>
+        <img src="" alt="">
+        <div class="image-counter"></div>
+    `;
+    document.body.appendChild(lightbox);
+
+    // Lightbox navigation variables
+    let currentImageIndex = 0;
+    let lightboxImages = [];
+
+    // Add lightbox event listeners
+    lightbox.querySelector('.close-btn').addEventListener('click', () => {
+        lightbox.classList.remove('active');
+    });
+
+    lightbox.querySelector('.prev-btn').addEventListener('click', () => {
+        if (lightboxImages.length > 0) {
+            currentImageIndex = (currentImageIndex - 1 + lightboxImages.length) % lightboxImages.length;
+            updateLightboxImage();
+        }
+    });
+
+    lightbox.querySelector('.next-btn').addEventListener('click', () => {
+        if (lightboxImages.length > 0) {
+            currentImageIndex = (currentImageIndex + 1) % lightboxImages.length;
+            updateLightboxImage();
+        }
+    });
+
+    function updateLightboxImage() {
+        if (lightboxImages.length > 0) {
+            lightbox.querySelector('img').src = lightboxImages[currentImageIndex].src;
+            lightbox.querySelector('img').alt = lightboxImages[currentImageIndex].alt;
+            lightbox.querySelector('.image-counter').textContent = `${currentImageIndex + 1}/${lightboxImages.length}`;
+        }
+    }
+
+    // Add global click handler for images
+    document.addEventListener('click', (e) => {
+        if (e.target.tagName === 'IMG' && e.target.closest('.ai-message')) {
+            const message = e.target.closest('.ai-message');
+            lightboxImages = Array.from(message.querySelectorAll('img')).map(img => ({
+                src: img.src,
+                alt: img.alt
+            }));
+            currentImageIndex = lightboxImages.findIndex(img => img.src === e.target.src);
+            updateLightboxImage();
+            lightbox.classList.add('active');
+        }
+    });
+
     // Load chat history when page loads
     loadChatHistory(); 
     
@@ -155,10 +212,47 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (sender === 'ai' || sender === 'error') {
-            messageDiv.innerHTML = md.render(text);
+            // Process markdown with enhanced image handling for multiple images
+            let processedText = text.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+                return `<div class="image-container">
+                    <img src="${src}" alt="${alt || 'AI Generated Image'}" loading="lazy">
+                    ${alt ? `<div class="image-caption">${alt}</div>` : ''}
+                </div>`;
+            });
+            
+            // Wrap multiple consecutive images in a gallery
+            processedText = processedText.replace(/(<div class="image-container">.*?<\/div>){2,}/gs, 
+                (match) => `<div class="image-gallery">${match}</div>`);
+            
+            messageDiv.innerHTML = md.render(processedText);
+            
+            // Add click handlers to images
+            messageDiv.querySelectorAll('img').forEach(img => {
+                img.style.cursor = 'pointer';
+            });
             
             messageDiv.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightElement(block);
+                
+                // Add copy button to each code block
+                const pre = block.parentElement;
+                if (pre.tagName === 'PRE') {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(block.textContent).then(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            copyBtn.classList.add('copied');
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                                copyBtn.classList.remove('copied');
+                            }, 2000);
+                        });
+                    });
+                    pre.style.position = 'relative';
+                    pre.appendChild(copyBtn);
+                }
             });
             
             renderKatex(messageDiv);
@@ -388,9 +482,46 @@ ${ragContext}
             }
 
             // Final rendering with markdown and LaTeX
-            messageDiv.innerHTML = md.render(fullResponse);
+            let processedText = fullResponse.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+                return `<div class="image-container">
+                    <img src="${src}" alt="${alt || 'AI Generated Image'}" loading="lazy">
+                    ${alt ? `<div class="image-caption">${alt}</div>` : ''}
+                </div>`;
+            });
+            
+            // Wrap multiple consecutive images in a gallery
+            processedText = processedText.replace(/(<div class="image-container">.*?<\/div>){2,}/gs, 
+                (match) => `<div class="image-gallery">${match}</div>`);
+            
+            messageDiv.innerHTML = md.render(processedText);
+            
+            // Add click handlers to images in streaming response
+            messageDiv.querySelectorAll('img').forEach(img => {
+                img.style.cursor = 'pointer';
+            });
+            
             messageDiv.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightElement(block);
+                
+                // Add copy button to each code block in streaming response
+                const pre = block.parentElement;
+                if (pre.tagName === 'PRE') {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(block.textContent).then(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            copyBtn.classList.add('copied');
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                                copyBtn.classList.remove('copied');
+                            }, 2000);
+                        });
+                    });
+                    pre.style.position = 'relative';
+                    pre.appendChild(copyBtn);
+                }
             });
             renderKatex(messageDiv);
             
