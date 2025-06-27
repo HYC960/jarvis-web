@@ -22,9 +22,9 @@
   <!-- Local CSS -->
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="assets/css/btt.css" />
-  <link rel="stylesheet" href="assets/css/testimonials.css" />
-  <link rel="stylesheet" href="assets/css/ai-assistant.css" />
   <link rel="stylesheet" href="assets/css/courses-section.css" />
+  <link rel="stylesheet" href="assets/css/testimonials.css" />
+  <link rel="stylesheet" href="assets/css/ai/ai-assistant.css"/>
 
   <!-- JavaScript Libraries -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -34,7 +34,6 @@
   <script src="https://cdn.jsdelivr.net/npm/markdown-it-texmath@0.9.6/texmath.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
-
 <body>
   <!-- Header/Navbar -->
   <header class="header">
@@ -197,37 +196,41 @@
      
   </section>
 
-  <div class="ai-interface">
-        <button class="ai-button" id="aiButton">
-            <i class="fas fa-robot"></i>
-        </button>
-        
-        <div class="ai-panel" id="aiPanel">
-            <div class="panel-header">
-                <div class="panel-title">JARVIS Web Assistant</div>
-                <div class="panel-actions">
-                    <button class="panel-btn fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                    <button class="panel-btn close-btn" id="closeBtn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="chat-container" id="chatContainer"></div>
-            
-            <div class="input-container">
-                <input type="text" class="query-input" id="queryInput" placeholder="Ask me anything...">
-                <button class="send-btn" id="sendBtn">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-                <button class="pause-btn" id="pauseBtn">
-                    <i class="fas fa-stop"></i>
-                </button>
-            </div>
+<div class="ai-interface">
+    <button class="ai-button" id="aiButton">
+      <i class="fas fa-robot"></i>
+    </button>
+    
+    <div class="ai-panel" id="aiPanel">
+      <div class="panel-header">
+        <div class="panel-title">JARVIS Web Assistant</div>
+        <div class="panel-actions">
+          <button class="panel-btn fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+            <i class="fas fa-expand"></i>
+          </button>
+          <button class="panel-btn close-btn" id="closeBtn">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+      </div>
+      
+      <div class="chat-container" id="chatContainer"></div>
+      
+      <div class="input-container">
+        <button class="upload-btn" id="uploadBtn" title="Upload Files">
+          <i class="fas fa-plus"></i>
+          <input type="file" id="uploadInput" accept="image/*,.txt,.py,.html,.css,.js,.md,.json,.csv" multiple>
+        </button>
+        <input type="text" class="query-input" id="queryInput" placeholder="Ask me anything...">
+        <button class="send-btn" id="sendBtn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+        <button class="pause-btn" id="pauseBtn">
+          <i class="fas fa-stop"></i>
+        </button>
+      </div>
     </div>
+  </div>
 
   <!-- Meet the Creator Section -->
   <section class="creator" id="creator">
@@ -464,6 +467,5 @@
   <script src="assets/js/btt.js"></script>
   <script src="assets/js/ai-assistant.js"></script>
   <script src="assets/js/testimonials.js"></script>
-  <script src="assets/js/course-details.js"></script>
 </body>
 </html>
