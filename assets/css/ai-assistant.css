@@ -1,3 +1,6 @@
+/* ====================== */
+/* VARIABLES */
+/* ====================== */
 :root {
     --bg-dark: #1a1a1a;
     --bg-darker: #0f0f0f;
@@ -24,7 +27,32 @@
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-/* Base Styles */
+/* ====================== */
+/* ANIMATIONS */
+/* ====================== */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInTyping {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====================== */
+/* BASE STYLES */
+/* ====================== */
 .ai-interface {
     position: fixed;
     bottom: 40px;
@@ -35,37 +63,43 @@
     transition: var(--transition-medium);
 }
 
-/* Button Styles */
-.ai-interface .ai-button {
-    position: relative;
+/* Fullscreen Mode */
+.ai-interface.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: var(--bg-darker);
-    color: var(--primary);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
+    z-index: 9999;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--glow);
-    font-size: 24px;
-    z-index: 10;
+    justify-content: center;
+    padding: 20px;
 }
 
-.ai-interface .ai-button:hover {
-    transform: scale(1.15) rotate(5deg);
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+.ai-interface.fullscreen .ai-button {
+    display: none;
 }
 
-.ai-interface .ai-button.active {
-    background: var(--primary);
-    color: var(--bg-darker);
-    transform: rotate(45deg);
+.ai-interface.fullscreen .ai-panel {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    width: 90%;
+    height: 90%;
+    max-height: none;
+    max-width: 1200px;
 }
 
-/* Panel Styles */
+.ai-interface.fullscreen .chat-container {
+    height: calc(100% - 120px);
+}
+
+/* ====================== */
+/* PANEL STYLES */
+/* ====================== */
 .ai-interface .ai-panel {
     position: absolute;
     bottom: 90px;
@@ -90,7 +124,9 @@
     visibility: visible;
 }
 
-/* Header Styles */
+/* ====================== */
+/* HEADER STYLES */
+/* ====================== */
 .ai-interface .panel-header {
     padding: 16px;
     border-bottom: 1px solid var(--border);
@@ -143,7 +179,9 @@
     transform: scale(1.1);
 }
 
-/* Chat Container */
+/* ====================== */
+/* CHAT STYLES */
+/* ====================== */
 .ai-interface .chat-container {
     height: 400px;
     overflow-y: auto;
@@ -188,7 +226,9 @@
     color: var(--error);
 }
 
-/* Typing Indicator */
+/* ====================== */
+/* TYPING INDICATOR */
+/* ====================== */
 .ai-interface .typing-indicator {
     display: flex;
     padding: 12px 16px;
@@ -210,7 +250,9 @@
 .ai-interface .typing-dot:nth-child(2) { animation-delay: 0.3s; }
 .ai-interface .typing-dot:nth-child(3) { animation-delay: 0.6s; }
 
-/* Input Area */
+/* ====================== */
+/* INPUT STYLES */
+/* ====================== */
 .ai-interface .input-container {
     padding: 16px;
     border-top: 1px solid var(--border);
@@ -219,6 +261,7 @@
     align-items: center;
     box-sizing: border-box;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .ai-interface .query-input {
@@ -235,6 +278,7 @@
     transition: var(--transition-medium);
     box-sizing: border-box;
     width: 100%;
+    order: 2;
 }
 
 .ai-interface .query-input:focus {
@@ -257,6 +301,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    order: 4;
 }
 
 .ai-interface .send-btn:hover,
@@ -284,178 +329,197 @@
     display: none;
 }
 
-/* Fullscreen Mode */
-.ai-interface.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-darker);
-    z-index: 9999;
+/* ====================== */
+/* UPLOAD PREVIEW STYLES */
+/* ====================== */
+.upload-preview {
+    display: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 100px;
+    overflow-y: auto;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-md);
+    margin-right: 8px;
+    align-items: center;
+    width: 100%;
+    order: 1;
+    margin-bottom: 8px;
+    border: 1px dashed var(--border);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.upload-preview.active {
+    display: flex;
+}
+
+.upload-preview .file-preview-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    padding: 6px;
+    transition: var(--transition-fast);
+    max-width: 100%;
+}
+
+.upload-preview .file-preview-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.upload-preview .file-thumbnail {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: var(--border-radius-sm);
+    margin-right: 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+}
+
+.upload-preview .file-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    max-width: calc(100% - 60px);
 }
 
-.ai-interface.fullscreen .ai-button {
-    display: none;
-}
-
-.ai-interface.fullscreen .ai-panel {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    width: 90%;
-    height: 90%;
-    max-height: none;
-    max-width: 1200px;
-}
-
-.ai-interface.fullscreen .chat-container {
-    height: calc(100% - 120px);
-}
-
-/* Markdown Content Styling */
-.ai-message p {
-    margin: 0.5em 0;
-}
-
-.ai-message pre {
-    background-color: var(--code-bg);
-    padding: 12px;
-    border-radius: var(--border-radius-md);
-    font-family: 'Fira Code', monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    margin: 8px 0;
-    position: relative;
-}
-
-.ai-message code {
-    font-family: 'Fira Code', monospace;
-    background-color: var(--code-bg);
-    padding: 2px 4px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.9em;
-}
-
-.ai-message a {
-    color: var(--link);
-    text-decoration: none;
-    transition: var(--transition-fast);
-}
-
-.ai-message a:hover {
-    color: var(--link-hover);
-    text-decoration: underline;
-}
-
-.ai-message ul, 
-.ai-message ol {
-    padding-left: 20px;
-    margin: 8px 0;
-}
-
-.ai-message li {
-    margin-bottom: 4px;
-}
-
-.ai-message blockquote {
-    border-left: 3px solid var(--primary);
-    padding-left: 12px;
-    margin: 8px 0;
-    color: var(--text-secondary);
-    font-style: italic;
-}
-
-.ai-message table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 12px 0;
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.ai-message th, 
-.ai-message td {
-    border: 1px solid var(--border);
-    padding: 8px 12px;
-    text-align: left;
-}
-
-.ai-message th {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* LaTeX Equation Styling */
-.ai-message .katex {
-    font-size: 1.1em;
-    padding: 2px 4px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-sm);
-    margin: 2px 0;
-}
-
-.ai-message .katex-display {
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-md);
-    margin: 12px 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    text-align: center;
-}
-
-.ai-message .katex-display > .katex {
-    display: inline-block;
-    white-space: nowrap;
-    padding: 0;
-    background: transparent;
-}
-
-.ai-message .katex-error {
-    color: var(--error);
-    background-color: rgba(255, 0, 0, 0.1);
-    padding: 4px;
-    border-radius: var(--border-radius-sm);
-}
-
-/* Code Block Copy Button */
-.ai-message .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius-sm);
-    color: var(--text);
-    padding: 4px 8px;
+.upload-preview .file-name {
     font-size: 12px;
-    cursor: pointer;
-    opacity: 0;
-    transition: var(--transition-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    color: var(--primary);
+}
+
+.upload-preview .file-size {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.upload-preview .remove-file-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--error);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition-fast);
+    z-index: 1;
 }
 
-.ai-message .copy-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.ai-message pre:hover .copy-btn {
+.upload-preview .file-preview-item:hover .remove-file-btn {
     opacity: 1;
 }
 
-.ai-message .copy-btn.copied {
-    color: var(--success);
-    border-color: var(--success);
+.upload-preview .file-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-sm);
+    margin-right: 8px;
+    flex-shrink: 0;
 }
 
+/* Scrollbar for upload preview */
+.upload-preview::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.upload-preview::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+/* ====================== */
+/* BUTTON STYLES */
+/* ====================== */
+.ai-interface .ai-button {
+    position: relative;
+    background: var(--bg-darker);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--glow);
+    font-size: 24px;
+    z-index: 10;
+}
+
+.ai-interface .ai-button:hover {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+}
+
+.ai-interface .ai-button.active {
+    background: var(--primary);
+    color: var(--bg-darker);
+    transform: rotate(45deg);
+}
+
+/* Upload Button Styles */
+.ai-interface .upload-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-lg);
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    transition: var(--transition-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+    order: 3;
+}
+
+.ai-interface .upload-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.ai-interface .upload-btn input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    left: 0;
+    top: 0;
+}
+
+.ai-interface .upload-btn i {
+    pointer-events: none;
+}
+
+/* ====================== */
+/* IMAGE STYLES */
+/* ====================== */
 /* Image Styling */
 .ai-message img {
     max-width: 100%;
@@ -604,7 +668,149 @@
     font-size: 14px;
 }
 
-/* Scrollbar Styles */
+/* ====================== */
+/* MARKDOWN STYLES */
+/* ====================== */
+.ai-message p {
+    margin: 0.5em 0;
+}
+
+.ai-message pre {
+    background-color: var(--code-bg);
+    padding: 12px;
+    border-radius: var(--border-radius-md);
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    margin: 8px 0;
+    position: relative;
+}
+
+.ai-message code {
+    font-family: 'Fira Code', monospace;
+    background-color: var(--code-bg);
+    padding: 2px 4px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+}
+
+.ai-message a {
+    color: var(--link);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.ai-message a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.ai-message ul, 
+.ai-message ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.ai-message li {
+    margin-bottom: 4px;
+}
+
+.ai-message blockquote {
+    border-left: 3px solid var(--primary);
+    padding-left: 12px;
+    margin: 8px 0;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.ai-message table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.ai-message th, 
+.ai-message td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.ai-message th {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* LaTeX Equation Styling */
+.ai-message .katex {
+    font-size: 1.1em;
+    padding: 2px 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    margin: 2px 0;
+}
+
+.ai-message .katex-display {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-md);
+    margin: 12px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: center;
+}
+
+.ai-message .katex-display > .katex {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 0;
+    background: transparent;
+}
+
+.ai-message .katex-error {
+    color: var(--error);
+    background-color: rgba(255, 0, 0, 0.1);
+    padding: 4px;
+    border-radius: var(--border-radius-sm);
+}
+
+/* Code Block Copy Button */
+.ai-message .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-sm);
+    color: var(--text);
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition-medium);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ai-message .copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ai-message pre:hover .copy-btn {
+    opacity: 1;
+}
+
+.ai-message .copy-btn.copied {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+/* ====================== */
+/* SCROLLBAR STYLES */
+/* ====================== */
 .ai-interface ::-webkit-scrollbar {
     width: 6px;
 }
@@ -622,23 +828,9 @@
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Animations */
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeInTyping {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.7; }
-    50% { transform: scale(1.3); opacity: 1; }
-}
-
-/* Responsive Styles */
+/* ====================== */
+/* RESPONSIVE STYLES */
+/* ====================== */
 @media (max-width: 500px) {
     .ai-interface {
         bottom: 20px;
@@ -671,6 +863,37 @@
     .ai-interface .send-btn,
     .ai-interface .pause-btn {
         padding: 10px 12px;
+    }
+
+    /* Upload preview adjustments */
+    .upload-preview {
+        max-height: 80px;
+    }
+    
+    .upload-preview .file-preview-item {
+        padding: 4px;
+    }
+    
+    .upload-preview .file-thumbnail {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .upload-preview .file-name {
+        font-size: 10px;
+        max-width: 100px;
+    }
+    
+    .upload-preview .file-size {
+        font-size: 8px;
+    }
+    
+    .upload-preview .remove-file-btn {
+        width: 14px;
+        height: 14px;
+        font-size: 8px;
+        top: -4px;
+        right: -4px;
     }
 
     /* Responsive adjustments for gallery */
