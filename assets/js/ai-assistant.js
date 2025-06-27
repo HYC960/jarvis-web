@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const queryInput = document.getElementById('queryInput');
     const sendBtn = document.getElementById('sendBtn');
     const pauseBtn = document.getElementById('pauseBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadInput = document.getElementById('uploadInput');
 
     // Initialize Markdown-it with plugins
     const md = window.markdownit({
@@ -49,6 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let streamController = null;
     let isFullscreen = false;
     let keyHealth = Array(apiKeys.length).fill(true);
+    let uploadedFiles = [];
+    let previewElement = null;
 
     const API_URL = 'https://api.together.xyz/v1/chat/completions';
     const CHAT_HISTORY_KEY = 'jarvis_chat_history';
@@ -59,6 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let chatHistory = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY)) || [
         { sender: 'ai', text: "# Hello! I'm JARVIS Web Assistant. How can I assist you today?" }
     ];
+
+    // Create preview element for uploaded files
+    previewElement = document.createElement('div');
+    previewElement.className = 'upload-preview';
+    document.querySelector('.input-container').insertBefore(previewElement, queryInput);
 
     // Create lightbox element for images
     const lightbox = document.createElement('div');
@@ -134,6 +143,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') sendMessage();
     });
     pauseBtn.addEventListener('click', pauseResponse);
+    uploadBtn.addEventListener('click', () => {
+        uploadInput.click();
+    });
+    uploadInput.addEventListener('change', handleFileUpload);
+    previewElement.addEventListener('click', removeUploadedFiles);
 
     // Close panel when clicking outside
     document.addEventListener('click', (e) => {
@@ -193,14 +207,172 @@ document.addEventListener('DOMContentLoaded', function() {
         loadChatHistory();
     }
 
+    async function handleFileUpload(event) {
+        const files = Array.from(event.target.files);
+        if (!files.length) return;
+        
+        // Clear previous uploads
+        uploadedFiles = [];
+        previewElement.innerHTML = '';
+        
+        // Process each file
+        for (const file of files) {
+            const fileReader = new FileReader();
+            
+            if (file.type.startsWith('image/')) {
+                // Handle image files
+                const imageData = await new Promise((resolve) => {
+                    fileReader.onload = (e) => resolve({
+                        type: 'image',
+                        name: file.name,
+                        data: e.target.result,
+                        base64: e.target.result.split(',')[1]
+                    });
+                    fileReader.readAsDataURL(file);
+                });
+                
+                uploadedFiles.push(imageData);
+                
+                // Create thumbnail preview
+                const imgPreview = document.createElement('img');
+                imgPreview.src = imageData.data;
+                imgPreview.className = 'file-thumbnail';
+                imgPreview.title = file.name;
+                previewElement.appendChild(imgPreview);
+                
+            } else {
+                // Handle text files
+                const textData = await new Promise((resolve) => {
+                    fileReader.onload = (e) => resolve({
+                        type: 'text',
+                        name: file.name,
+                        data: e.target.result
+                    });
+                    fileReader.readAsText(file);
+                });
+                
+                uploadedFiles.push(textData);
+                
+                // Create file info preview
+                const filePreview = document.createElement('div');
+                filePreview.className = 'file-info';
+                filePreview.innerHTML = `<i class="fas fa-file-alt"></i> ${file.name}`;
+                previewElement.appendChild(filePreview);
+            }
+        }
+        
+        previewElement.style.display = 'flex';
+        uploadInput.value = '';
+    }
+
+    function removeUploadedFiles() {
+        uploadedFiles = [];
+        previewElement.innerHTML = '';
+        previewElement.style.display = 'none';
+        uploadInput.value = '';
+    }
+
     function sendMessage() {
         const message = queryInput.value.trim();
-        if (!message || isStreaming) return;
+        if ((!message && !uploadedFiles.length) || isStreaming) return;
 
-        addMessage(message, 'user');
+        // Add user message to chat
+        if (uploadedFiles.length) {
+            const fileList = uploadedFiles.map(f => f.name).join(', ');
+            addMessage(`📁 ${fileList}`, 'user');
+        } else {
+            addMessage(message, 'user');
+        }
+        
         queryInput.value = '';
         showTypingIndicator();
-        callTogetherAIAPI(message);
+        
+        if (uploadedFiles.some(f => f.type === 'image')) {
+            // Process images first
+            processImages().then(descriptions => {
+                const combinedPrompt = message 
+                    ? `${message}\n\n[Attachments: ${descriptions.join('\n')}]` 
+                    : `Describe these attachments in detail.\n\n[Attachments: ${descriptions.join('\n')}]`;
+                
+                callTogetherAIAPI(combinedPrompt, false);
+                removeUploadedFiles();
+            }).catch(error => {
+                addMessage("Failed to process attachments. Please try again.", 'error');
+                removeTypingIndicator();
+                removeUploadedFiles();
+            });
+        } else if (uploadedFiles.length) {
+            // Handle text files
+            const fileContents = uploadedFiles.map(f => 
+                `--- ${f.name} ---\n${f.data}`
+            ).join('\n\n');
+            
+            const filePrompt = message 
+                ? `${message}\n\n${fileContents}`
+                : `Analyze these files:\n\n${fileContents}`;
+            
+            callTogetherAIAPI(filePrompt);
+            removeUploadedFiles();
+        } else {
+            // Regular text query
+            callTogetherAIAPI(message);
+        }
+    }
+
+    async function processImages() {
+        const descriptions = [];
+        
+        for (const file of uploadedFiles.filter(f => f.type === 'image')) {
+            try {
+                const description = await getImageDescription(file.base64);
+                descriptions.push(`Image ${file.name}: ${description}`);
+            } catch (error) {
+                console.error(`Error processing image ${file.name}:`, error);
+                descriptions.push(`Image ${file.name}: [Could not process]`);
+            }
+        }
+        
+        return descriptions;
+    }
+
+    async function getImageDescription(base64Data) {
+        const apiKey = apiKeys[currentKeyIndex];
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "meta-llama/Llama-Vision-Free",
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are an image analysis assistant. Describe the provided image in detail, including all relevant objects, text, colors, and context. Be thorough but concise."
+                    },
+                    {
+                        role: "user",
+                        content: [
+                            { type: "text", text: "Describe this image in detail." },
+                            {
+                                type: "image_url",
+                                image_url: {
+                                    url: `data:image/jpeg;base64,${base64Data}`
+                                }
+                            }
+                        ]
+                    }
+                ],
+                stream: false
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Vision API request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
     }
 
     function addMessage(text, sender, saveToHistory = true) {
@@ -389,19 +561,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const controller = new AbortController();
             streamController = controller;
 
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Accept': 'text/event-stream'
-                },
-                body: JSON.stringify({
-                    model: "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
-                    messages: [
-                        {
-                            role: "system",
-                            content: `You are JARVIS — an intelligent, futuristic AI assistant built to assist users on this website with accurate, helpful, and context-aware responses. Your role is to guide users, answer their questions, and provide support based on the knowledge base provided below.
+            const messages = [
+                {
+                    role: "system",
+                    content: `You are JARVIS — an intelligent, futuristic AI assistant built to assist users on this website with accurate, helpful, and context-aware responses. Your role is to guide users, answer their questions, and provide support based on the knowledge base provided below.
 
 Respond in a clear, concise, and professional tone. Adapt your replies based on the user's intent — whether they are seeking help, browsing products, asking about policies, or just exploring.
 
@@ -410,13 +573,44 @@ Use the knowledge base below as trusted internal context for your answers. Do no
 --- BEGIN KNOWLEDGE BASE ---
 ${ragContext}
 --- END KNOWLEDGE BASE ---`
-                        },
-                        ...chatHistory.slice(0, -1).map(msg => ({
-                            role: msg.sender === 'user' ? 'user' : 'assistant',
-                            content: msg.text
-                        })),
-                        { role: "user", content: prompt }
-                    ],
+                },
+                ...chatHistory.slice(0, -1).map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'assistant',
+                    content: msg.text
+                }))
+            ];
+
+            // Add images to messages if uploaded
+            const imageFiles = uploadedFiles.filter(f => f.type === 'image');
+            if (imageFiles.length > 0) {
+                messages.push({
+                    role: "user",
+                    content: [
+                        { type: "text", text: prompt || "Describe these images." },
+                        ...imageFiles.map(file => ({
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/jpeg;base64,${file.base64}`
+                            }
+                        }))
+                    ]
+                });
+            } else {
+                messages.push({ role: "user", content: prompt });
+            }
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Accept': 'text/event-stream'
+                },
+                body: JSON.stringify({
+                    model: imageFiles.length > 0 
+                        ? "meta-llama/Llama-Vision-Free" 
+                        : "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+                    messages: messages,
                     stream: true
                 }),
                 signal: controller.signal
