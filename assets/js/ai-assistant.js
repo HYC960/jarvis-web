@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateLightboxImage() {
         if (lightboxImages.length > 0) {
             lightbox.querySelector('img').src = lightboxImages[currentImageIndex].src;
-            lightbox.querySelector('img').alt = lightboxImages[currentImageIndex].alt;
             lightbox.querySelector('.image-counter').textContent = `${currentImageIndex + 1}/${lightboxImages.length}`;
         }
     }
@@ -127,12 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Load chat history when page loads
-    loadChatHistory(); 
-    
-    // Clear chat history if this is a fresh page load (not a refresh)
-    if (performance.navigation.type === performance.navigation.TYPE_NAVIGATE) {
-        clearChatHistory();
-    }
+    loadChatHistory();
 
     // Event Listeners
     aiButton.addEventListener('click', togglePanel);
@@ -140,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     sendBtn.addEventListener('click', sendMessage);
     queryInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
+        if (e.key === 'Enter' && !e.shiftKey) sendMessage();
     });
     pauseBtn.addEventListener('click', pauseResponse);
     uploadBtn.addEventListener('click', () => {
@@ -197,11 +191,12 @@ document.addEventListener('DOMContentLoaded', function() {
         chatHistory.forEach(msg => {
             addMessage(msg.text, msg.sender, false);
         });
+        scrollToBottom();
     }
 
     function clearChatHistory() {
         chatHistory = [
-            { sender: 'ai', text: "Hello! I'm JARVIS Web Assistant. How can I assist you today?" }
+            { sender: 'ai', text: "# Hello! I'm JARVIS Web Assistant. How can I assist you today?" }
         ];
         localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
         loadChatHistory();
@@ -240,8 +235,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 imgPreview.title = file.name;
                 previewElement.appendChild(imgPreview);
                 
-            } else {
-                // Handle text files
+            } else if (file.type === 'text/plain' || file.type === 'application/json') {
+                // Handle text-based files
                 const textData = await new Promise((resolve) => {
                     fileReader.onload = (e) => resolve({
                         type: 'text',
@@ -257,6 +252,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const filePreview = document.createElement('div');
                 filePreview.className = 'file-info';
                 filePreview.innerHTML = `<i class="fas fa-file-alt"></i> ${file.name}`;
+                previewElement.appendChild(filePreview);
+            } else {
+                // Unsupported file type
+                const filePreview = document.createElement('div');
+                filePreview.className = 'file-info unsupported';
+                filePreview.innerHTML = `<i class="fas fa-file-exclamation"></i> ${file.name} (unsupported)`;
                 previewElement.appendChild(filePreview);
             }
         }
@@ -287,42 +288,48 @@ document.addEventListener('DOMContentLoaded', function() {
         queryInput.value = '';
         showTypingIndicator();
         
-        if (uploadedFiles.some(f => f.type === 'image')) {
-            // Process images first
-            processImages().then(descriptions => {
-                const combinedPrompt = message 
-                    ? `${message}\n\n[Attachments: ${descriptions.join('\n')}]` 
-                    : `Describe these attachments in detail.\n\n[Attachments: ${descriptions.join('\n')}]`;
-                
-                callTogetherAIAPI(combinedPrompt, false);
-                removeUploadedFiles();
-            }).catch(error => {
-                addMessage("Failed to process attachments. Please try again.", 'error');
-                removeTypingIndicator();
-                removeUploadedFiles();
-            });
-        } else if (uploadedFiles.length) {
-            // Handle text files
-            const fileContents = uploadedFiles.map(f => 
-                `--- ${f.name} ---\n${f.data}`
-            ).join('\n\n');
-            
-            const filePrompt = message 
-                ? `${message}\n\n${fileContents}`
-                : `Analyze these files:\n\n${fileContents}`;
-            
-            callTogetherAIAPI(filePrompt);
-            removeUploadedFiles();
+        // Handle files and text input
+        if (uploadedFiles.length > 0) {
+            handleFilesAndSend(message);
         } else {
-            // Regular text query
             callTogetherAIAPI(message);
         }
     }
 
-    async function processImages() {
+    async function handleFilesAndSend(message) {
+        try {
+            let prompt = message;
+            const imageFiles = uploadedFiles.filter(f => f.type === 'image');
+            const textFiles = uploadedFiles.filter(f => f.type === 'text');
+            
+            if (imageFiles.length > 0) {
+                const descriptions = await processImages(imageFiles);
+                prompt = prompt ? `${prompt}\n\n[Attachments: ${descriptions.join('\n')}]` 
+                                : `Describe these attachments in detail.\n\n[Attachments: ${descriptions.join('\n')}]`;
+            }
+            
+            if (textFiles.length > 0) {
+                const fileContents = textFiles.map(f => 
+                    `--- ${f.name} ---\n${f.data}`
+                ).join('\n\n');
+                
+                prompt = prompt ? `${prompt}\n\n${fileContents}` 
+                                : `Analyze these files:\n\n${fileContents}`;
+            }
+            
+            callTogetherAIAPI(prompt);
+            removeUploadedFiles();
+        } catch (error) {
+            addMessage("Failed to process attachments. Please try again.", 'error');
+            removeTypingIndicator();
+            removeUploadedFiles();
+        }
+    }
+
+    async function processImages(imageFiles) {
         const descriptions = [];
         
-        for (const file of uploadedFiles.filter(f => f.type === 'image')) {
+        for (const file of imageFiles) {
             try {
                 const description = await getImageDescription(file.base64);
                 descriptions.push(`Image ${file.name}: ${description}`);
@@ -384,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (sender === 'ai' || sender === 'error') {
-            // Process markdown with enhanced image handling for multiple images
+            // Process markdown with enhanced image handling
             let processedText = text.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
                 return `<div class="image-container">
                     <img src="${src}" alt="${alt || 'AI Generated Image'}" loading="lazy">
@@ -433,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        scrollToBottom();
 
         if (saveToHistory) {
             chatHistory.push({ sender, text });
@@ -444,6 +451,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
         }
+    }
+
+    function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
     function renderKatex(element) {
@@ -491,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         chatContainer.appendChild(typingDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        scrollToBottom();
     }
 
     function removeTypingIndicator() {
@@ -564,12 +575,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const messages = [
                 {
                     role: "system",
-                    content: `You are JARVIS — an intelligent, futuristic AI assistant built to assist users on this website with accurate, helpful, and context-aware responses. Your role is to guide users, answer their questions, and provide support based on the knowledge base provided below.
+                    content: `You are JARVIS — a multimodal, intelligent, and futuristic AI assistant capable of understanding both text and images. You are built to assist users on this website with accurate, helpful, and context-aware responses.
 
-Respond in a clear, concise, and professional tone. Adapt your replies based on the user's intent — whether they are seeking help, browsing products, asking about policies, or just exploring.
+🧠 Your core abilities include:
+- Understanding complex text instructions.
+- Analyzing uploaded images to extract detailed information including objects, context, text within the image, and semantic meaning.
+- Providing rich, conversational answers and actionable advice.
+- Using contextual files and internal memory to provide informed responses.
 
-Use the knowledge base below as trusted internal context for your answers. Do not mention that this is a file or external source. If an answer is not found, respond gracefully or infer if appropriate.
+🖼️ If the user uploads images, analyze them deeply and describe what you see, such as:
+- Visual elements (people, objects, scenery, etc.)
+- Text within images (OCR-like insight)
+- Emotions, actions, visual layout, and color schemes
+- Any symbols, logos, or signs
 
+📝 If the user uploads documents (text/json), summarize or explain the content intelligently.
+
+💡 Always try to detect the user’s intent — whether they’re asking a question, giving a command, or uploading media for feedback — and respond accordingly.
+
+🔒 Use the internal knowledge base below to provide website-specific support. Never refer to this as a "file" or "external source".
 --- BEGIN KNOWLEDGE BASE ---
 ${ragContext}
 --- END KNOWLEDGE BASE ---`
@@ -635,7 +659,7 @@ ${ragContext}
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', 'ai-message');
             chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            scrollToBottom();
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder("utf-8");
@@ -665,7 +689,7 @@ ${ragContext}
                         if (token) {
                             fullResponse += token;
                             messageDiv.textContent = fullResponse;
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                            scrollToBottom();
                         }
                     } catch (err) {
                         console.warn("Streaming parse error:", err);
@@ -719,7 +743,7 @@ ${ragContext}
             });
             renderKatex(messageDiv);
             
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            scrollToBottom();
 
             // Add the final response to chat history
             chatHistory.push({ sender: 'ai', text: fullResponse });
