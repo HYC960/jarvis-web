@@ -1,0 +1,117 @@
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: #ffffff;
+  color: #1e40af;
+  padding: 32px 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.3s ease;
+  position: relative;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1e40af;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  background: #f9fafb;
+  color: #111;
+  transition: border 0.2s ease;
+}
+
+.modal-content input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  background-color: #fff;
+}
+
+.modal-content button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+  background-color: #1e40af;
+}
+
+.social-icons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 26px;
+}
+
+.social-icons a {
+  color: #3b82f6;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.social-icons a:hover {
+  color: #1e40af;
+  transform: scale(1.1);
+}
+
+.close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  cursor: pointer;
+  font-size: 22px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.close:hover {
+  color: #1e40af;
+}

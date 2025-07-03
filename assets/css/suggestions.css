@@ -1,0 +1,144 @@
+/* Updated Suggestions Container */
+#suggestions {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 100vw;
+  padding: 0 16px;
+  animation: slideFadeIn 0.6s ease-out;
+  z-index: 99;
+  pointer-events: none;
+}
+
+/* Optional: compact helper text */
+#suggestions p {
+  font-size: 36px;
+  font-weight: 500;
+  color: #d1d5db;
+  margin-bottom: 400px;
+  text-align: center;
+  pointer-events: auto;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Horizontal scroll for suggestions */
+#suggestions ul {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  list-style: none;
+  padding: 8px 0;
+  margin: 0 auto;
+  justify-content: center;
+  max-width: 100%;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  pointer-events: auto;
+}
+
+#suggestions ul::-webkit-scrollbar {
+  display: none;
+}
+
+#suggestions ul li {
+  display: inline-block;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: #e5e7eb;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 0 transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  flex-shrink: 0;
+  pointer-events: auto;
+  backdrop-filter: blur(4px);
+  background-clip: padding-box;
+  width: fit-content;
+  max-width: 90vw;
+  border: 1px dashed rgba(255, 255, 255, 0.5);
+}
+
+/* Glow effect and fill on hover */
+#suggestions ul li:hover {
+  background: rgba(55, 65, 81, 0.85);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Optional animated glow overlay */
+#suggestions ul li::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03), transparent 70%);
+  animation: rotateGlow 6s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  #suggestions {
+    bottom: 110px;
+    padding: 0 12px;
+  }
+
+  #suggestions p {
+    font-size: 24px;
+    margin-bottom: 300px;
+  }
+
+  #suggestions ul {
+    gap: 8px;
+    padding: 6px 0;
+    justify-content: flex-start;
+  }
+
+  #suggestions ul li {
+    padding: 10px 16px;
+    font-size: 12px;
+    border-radius: 12px;
+    backdrop-filter: blur(3px);
+  }
+
+  /* Adjust for very small screens */
+  @media (max-width: 480px) {
+    #suggestions {
+      bottom: 100px;
+      padding: 0 8px;
+    }
+
+    #suggestions p {
+      font-size: 20px;
+      margin-bottom: 250px;
+    }
+
+    #suggestions ul li {
+      padding: 8px 12px;
+      font-size: 11px;
+      border-radius: 10px;
+    }
+
+    /* Disable hover effects on touch devices */
+    @media (hover: none) {
+      #suggestions ul li:hover {
+        background: transparent;
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        box-shadow: none;
+      }
+    }
+  }
+}
+

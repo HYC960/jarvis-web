@@ -1,0 +1,90 @@
+/* Streaming Progress */
+.streaming-progress {
+  height: 2px;
+  background: #3b82f6;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  z-index: 1000;
+  transition: width 0.1s linear;
+}
+
+/* Back to Down Button */
+#backToDownBtn {
+  position: fixed;
+  bottom: 120px;
+  right: 50%;
+  width: 40px;
+  height: 40px;
+  background-color: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 99;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#backToDownBtn.visible {
+  opacity: 1;
+}
+
+#backToDownBtn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Adjust progress bar for mobile */
+  .streaming-progress {
+    height: 3px; /* slightly thicker for visibility */
+  }
+
+  /* Back to bottom button mobile styles */
+  #backToDownBtn {
+    bottom: 100px; /* higher up to avoid input bar */
+    right: 20px;
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Disable hover effects on touch devices */
+  @media (hover: none) {
+    #backToDownBtn:hover {
+      transform: none;
+      background-color: #1e3a8a;
+    }
+  }
+
+  /* Extra small devices */
+  @media (max-width: 480px) {
+    #backToDownBtn {
+      bottom: 90px;
+      right: 15px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .streaming-progress {
+    transition: none;
+  }
+  
+  #backToDownBtn {
+    transition: opacity 0.3s;
+  }
+  
+  #backToDownBtn:hover {
+    transition: none;
+  }
+}

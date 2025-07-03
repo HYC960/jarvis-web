@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>LLaMA 3.3 Chat with Context Memory</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
+
+  <!-- External Libraries & Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+
+  <!-- Local Component Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/chat.css" />
+  <link rel="stylesheet" href="assets/css/suggestions.css" />
+  <link rel="stylesheet" href="assets/css/input-bar.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/nav-bar.css" />
+  <link rel="stylesheet" href="assets/css/qoute_preview.css" />
+  <link rel="stylesheet" href="assets/css/share-modal.css" />
+  <link rel="stylesheet" href="assets/css/typing-indicator.css" />
+  <link rel="stylesheet" href="assets/css/sidebar.css" />
+  <link rel="stylesheet" href="assets/css/about-popup.css" />
+</head>
+
+<body>
+
+    
+  <!-- Quote Button -->
+  <button id="quoteBtn" style="display: none;" title="Quote this">
+    <i class="fas fa-quote-left"></i>
+  </button>
+
+  <!-- Top Navigation Bar -->
+<div id="topNavBar">
+  <button class="navBtn" id="newChatBtn" title="New Chat">
+    <i class="fas fa-comments"></i> <!-- better than comment-medical -->
+  </button>
+
+  <button class="navBtn" id="exportChatBtn" title="Export Chat">
+    <i class="fas fa-file-arrow-down"></i> <!-- modern export icon -->
+  </button>
+
+  <button class="navBtn" id="shareChatBtn" title="Share Chat">
+    <i class="fas fa-share-nodes"></i> <!-- better for sharing -->
+  </button>
+
+  <button class="navBtn" id="sidebarToggle" title="Toggle Sidebar">
+    <i class="fas fa-bars-staggered"></i> <!-- modern toggle/sidebar icon -->
+  </button>
+
+  <button class="navBtn" id="aboutBtn" title="About">
+    <i class="fas fa-circle-info"></i> <!-- more intuitive for "about" -->
+  </button>
+
+    <!-- Profile Section -->
+    <div id="userProfileWrapper">
+      <div id="userProfile" title="Your Account">
+        <img id="userPic" src="" alt="Profile" />
+      </div>
+      <div id="userDropdown">
+        <img id="dropdownPic" src="" alt="User Photo" />
+        <div id="userName">Name</div>
+        <div id="userEmail">email@example.com</div>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll to Bottom Button -->
+  <button id="backToDownBtn" title="Scroll to Bottom">
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <!-- Streaming Progress Bar -->
+  <div class="streaming-progress" id="streamingProgress"></div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <span>💬 Your Chats</span>
+    <button id="collapseSidebarBtn" title="Collapse Sidebar">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </div>
+
+  <div id="chatList">
+    <!-- Example chat items (you can dynamically insert these via JS) -->
+    <div class="chat-item">
+
+      <span>Chat with AI</span>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Main Chat Area -->
+  <div id="chat"></div>
+
+<!-- Input Bar -->
+<div id="inputBar">
+
+  <!-- Model Toggle -->
+  <button id="modelToggle" title="Enable Reasoning">
+    <i class="fas fa-brain"></i>
+  </button>
+
+  <!-- Quote Preview -->
+  <div id="quotedPreview" class="quoted-preview" style="display: none;">
+    <span id="quotedText"></span>
+    <button id="cancelQuoteBtn" title="Cancel Quote">✖</button>
+  </div>
+
+  <!-- Model Info -->
+  <span class="model-indicator">Current Model: meta-llama/Llama-3.3-70B-Instruct-Turbo-Free</span>
+
+  <!-- Input Field -->
+  <input type="text" id="userInput" placeholder="Ask me anything..." autocomplete="off" />
+
+  <!-- File Upload -->
+  <div>
+    <input 
+      type="file" 
+      id="fileInput" 
+      style="display: none;" 
+      accept=".txt, .html, .css, .js, .json, .py, .png, .jpg, .jpeg" 
+    />
+    <button id="uploadBtn">
+      <i class="fas fa-paperclip"></i>
+    </button>
+  </div>
+
+  <!-- Send Button -->
+  <div>
+    <button id="sendBtn" title="Send">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+  <!-- Share Modal -->
+  <div id="shareModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>🔗 Share this chat</h3>
+      <input type="text" id="shareLink" readonly />
+      <button id="copyLinkBtn">
+        <i class="fas fa-copy"></i> Copy Link
+      </button>
+      <div class="social-icons">
+        <a id="waShare" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        <a id="fbShare" target="_blank"><i class="fab fa-facebook"></i></a>
+        <a id="tgShare" target="_blank"><i class="fab fa-telegram"></i></a>
+      </div>
+    </div>
+  </div>
+  <div id="loadingIndicator" style="text-align:center; padding:10px; color:gray; display:none;">
+  <i class="fas fa-spinner fa-spin"></i> Loading chats...
+</div>
+<!-- About Popup (initially hidden) -->
+<div id="aboutOverlay">
+  <div id="aboutPopup">
+    <h2>Help AI Understand You Better</h2>
+    
+    <textarea 
+      id="aboutInput" 
+      rows="5" 
+      placeholder="Tell me about yourself — hobbies, work, preferences, goals. This helps improve responses and build a personalized experience."
+    ></textarea>
+    
+    <button id="submitAbout">Save Info</button>
+    <p id="statusMessage"></p>
+  </div>
+</div>
+
+
+
+  <!-- Highlight.js Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+
+  <!-- Markdown & KaTeX -->
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.2/dist/markdown-it.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-texmath@1.0.0/texmath.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-task-lists@2.1.1/dist/markdown-it-task-lists.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-footnote@3.0.3/dist/markdown-it-footnote.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-abbr@1.0.4/dist/markdown-it-abbr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-emoji@2.0.2/dist/markdown-it-emoji.min.js"></script>
+
+  <!-- Custom Scripts -->
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/file_upload.js"></script>
+  <script src="assets/js/scripts.js"></script>
+  <script src="assets/js/suggestions.js"></script>
+  <script src="assets/js/ask_assistant_by_qoute.js"></script>
+  <script src="assets/js/new_chat.js"></script>
+  <script src="assets/js/chat_export_function.js"></script>
+  <script src="assets/js/profile_dropdown.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="assets/js/shortcut-keys.js"></script>
+  <script type="module" src="assets/js/share-chat.js"></script>
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/chat_save_to_fire.js"></script>
+  <script type="module" src="assets/js/chat_fetcher_to_fire.js"></script>
+  <script type="module" src="assets/js/about.js"></script>
+  <script type="module" src="assets/js/inject-about.js"></script>
+</body>
+</html>

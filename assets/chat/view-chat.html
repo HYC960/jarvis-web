@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shared Chat View</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --gray: #1f2937;
+      --bg: #111111;
+      --code-bg: #1a1a1a;
+      --bubble-radius: 16px;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg);
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    #chat {
+      padding: 100px clamp(16px, 10vw, 200px) 120px;
+      overflow-y: auto;
+      height: 100vh;
+      scroll-behavior: smooth;
+    }
+
+    /* Scrollbar */
+    #chat::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chat::-webkit-scrollbar-thumb {
+      background-color: #333;
+      border-radius: 4px;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: var(--bubble-radius);
+      position: relative;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-out forwards;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      line-height: 1.6;
+    }
+
+    .user {
+      background-color: var(--primary);
+      color: #fff;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .assistant {
+      background-color: var(--gray);
+      color: #fff;
+      margin-right: auto;
+      text-align: left;
+    }
+
+    .message-content {
+      font-size: 16px;
+      overflow-x: auto;
+    }
+
+    .message-content pre {
+      background-color: var(--code-bg);
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+    }
+
+    .message-content code {
+      font-family: 'Fira Code', monospace;
+      background-color: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .message-content blockquote {
+      border-left: 4px solid #3b82f6;
+      padding-left: 12px;
+      color: #cbd5e1;
+      margin: 10px 0;
+    }
+
+    .message-content table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 14px 0;
+    }
+
+    .message-content th,
+    .message-content td {
+      border: 1px solid #444;
+      padding: 8px 12px;
+    }
+
+    .message-content th {
+      background-color: var(--primary);
+    }
+
+    .message-content tr:nth-child(even) {
+      background-color: var(--gray);
+    }
+
+    .katex {
+      font-size: 1.1em !important;
+    }
+
+    .katex-display {
+      margin: 0.5em 0 !important;
+      overflow-x: auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="chat">Loading chat...</div>
+
+  <!-- Firebase Compat -->
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore-compat.js"></script>
+
+  <!-- Marked + Highlight.js + KaTeX -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyC1D4HYiBVUgwwvVTm64mPWMj6WOthVhlw",
+      authDomain: "e-commerce-6e5a1.firebaseapp.com",
+      projectId: "e-commerce-6e5a1"
+    });
+
+    const db = firebase.firestore();
+    const chatBox = document.getElementById("chat");
+    const chatId = new URLSearchParams(window.location.search).get("id");
+
+    async function loadChat() {
+      if (!chatId) {
+        chatBox.textContent = "❌ Invalid or missing chat ID.";
+        return;
+      }
+
+      try {
+        const docRef = db.collection("sharedChats").doc(chatId);
+        const docSnap = await docRef.get();
+
+        if (!docSnap.exists) {
+          chatBox.textContent = "❌ Chat not found.";
+          return;
+        }
+
+        const history = docSnap.data().history || [];
+        chatBox.innerHTML = "";
+
+        history.forEach(msg => {
+          const div = document.createElement("div");
+          div.className = `message ${msg.role}`;
+          const inner = document.createElement("div");
+          inner.className = "message-content";
+          inner.innerHTML = marked.parse(msg.content);
+          div.appendChild(inner);
+          chatBox.appendChild(div);
+        });
+
+        document.querySelectorAll("pre code").forEach(block => {
+          hljs.highlightElement(block);
+        });
+
+        renderMathInElement(chatBox, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ]
+        });
+
+      } catch (e) {
+        console.error(e);
+        chatBox.textContent = "❌ Error loading chat.";
+      }
+    }
+
+    loadChat();
+  </script>
+</body>
+</html>

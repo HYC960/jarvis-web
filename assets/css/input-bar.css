@@ -1,0 +1,269 @@
+#inputBar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 800px;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(100, 100, 100, 0.3);
+  border-radius: 16px;
+  display: flex;
+  padding: 14px 18px;
+  align-items: center;
+  z-index: 1000;
+  gap: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#userInput {
+  flex: 1;
+  padding: 12px 18px;
+  border: 1px solid #444;
+  background: rgba(34, 34, 34, 0.8);
+  color: #fff;
+  font-size: 16px;
+  border-radius: 20px;
+  outline: none;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+#userInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+#sendBtn {
+  background-color: #1e3a8a;
+  border: none;
+  color: #fff;
+  padding: 0 20px;
+  font-size: 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#sendBtn i {
+  pointer-events: none;
+}
+
+#sendBtn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+#sendBtn:active {
+  transform: translateY(0);
+}
+
+#sendBtn.stop-btn {
+  background-color: #b91c1c;
+}
+
+#sendBtn.stop-btn:hover {
+  background-color: #991b1b;
+}
+
+/* Model Toggle Button */
+#modelToggle {
+  position: relative;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Default Turbo model color */
+.model-turbo #modelToggle {
+  background-color: #1e3a8a; /* Blue */
+}
+
+.model-turbo #modelToggle:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Deep model color */
+.model-deep #modelToggle {
+  background-color: #b91c1c; /* Red */
+}
+
+.model-deep #modelToggle:hover {
+  background-color: #991b1b;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Active click effect */
+#modelToggle:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Model name popup indicator */
+.model-indicator {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  background-color: #1f2937;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  text-align: center;
+  max-width: 300px;
+  width: max-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Show indicator on hover */
+#modelToggle:hover .model-indicator {
+  opacity: 1;
+  transform: translateX(-50%) scale(1) translateY(-5px);
+}
+
+/* Upload Button */
+#uploadBtn {
+  background-color: #1e3a8a;
+  border: none;
+  color: #fff;
+  padding: 0 15px;
+  font-size: 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(27, 50, 180, 0.2);
+  white-space: nowrap;
+}
+
+#uploadBtn:hover {
+  background-color: #374151;
+  transform: translateY(-1px);
+}
+
+#uploadBtn:active {
+  transform: translateY(0);
+}
+
+#uploadBtn i {
+  font-size: 16px;
+}
+
+#inputBar > div {
+  display: flex;
+  gap: 10px;
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+  #inputBar {
+    bottom: 10px;
+    width: calc(100% - 20px);
+    padding: 10px 12px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  #userInput {
+    padding: 10px 14px;
+    font-size: 15px;
+    min-width: 0;
+  }
+
+  #sendBtn,
+  #modelToggle,
+  #uploadBtn {
+    height: 40px;
+    min-width: 40px;
+    width: 40px;
+  }
+
+  #sendBtn {
+    padding: 0 15px;
+  }
+
+  #uploadBtn {
+    padding: 0;
+    width: 40px;
+  }
+  
+  #uploadBtn span {
+    display: none;
+  }
+  
+  #uploadBtn i {
+    margin: 0;
+  }
+
+  /* Adjust model indicator position for mobile */
+  .model-indicator {
+    bottom: 50px;
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  /* Disable hover effects on touch devices */
+  @media (hover: none) {
+    #sendBtn:hover,
+    #modelToggle:hover,
+    #uploadBtn:hover {
+      transform: none;
+    }
+    
+    #modelToggle:hover .model-indicator {
+      opacity: 0;
+    }
+  }
+
+  /* Extra small devices adjustments */
+  @media (max-width: 400px) {
+    #inputBar {
+      bottom: 8px;
+      padding: 8px 10px;
+      gap: 6px;
+    }
+
+    #userInput {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    #sendBtn,
+    #modelToggle,
+    #uploadBtn {
+      height: 36px;
+      min-width: 36px;
+      width: 36px;
+      font-size: 15px;
+    }
+  }
+}

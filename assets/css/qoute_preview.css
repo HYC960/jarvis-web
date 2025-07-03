@@ -1,0 +1,159 @@
+.quoted-preview {
+  position: fixed;
+  bottom: 85px; /* above input bar */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px); /* same as input bar width */
+  max-width: 800px; /* match input bar's max width */
+  max-height: 70px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #e0e0e0;
+  padding: 10px 16px;
+  border-left: 4px solid #3b82f6;
+  border-radius: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  backdrop-filter: blur(8px);
+  animation: fadeInUp 0.3s ease-out;
+  overflow: hidden;
+}
+
+#quotedText {
+  flex: 1;
+  max-height: 50px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-style: italic;
+  line-height: 1.4;
+  scrollbar-width: thin;
+  scrollbar-color: #3b82f6 transparent;
+}
+
+#quotedText::-webkit-scrollbar {
+  width: 4px;
+}
+#quotedText::-webkit-scrollbar-thumb {
+  background-color: #3b82f6;
+  border-radius: 2px;
+}
+
+#cancelQuoteBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+#cancelQuoteBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translate(-50%, 10px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+#quoteBtn {
+  position: absolute;
+  z-index: 1000;
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+#quoteBtn:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quoted-preview {
+    bottom: 75px; /* Adjusted for mobile */
+    width: calc(100% - 30px); /* More edge-to-edge on mobile */
+    max-height: 60px; /* Slightly smaller on mobile */
+    padding: 8px 12px; /* Tighter padding */
+    font-size: 13px; /* Slightly smaller text */
+    gap: 8px; /* Reduced gap */
+  }
+
+  #quotedText {
+    max-height: 44px; /* Adjusted for new container height */
+    line-height: 1.3; /* Tighter line height */
+  }
+
+  #cancelQuoteBtn {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quoted-preview {
+    bottom: 70px; /* Further adjustment for very small screens */
+    width: calc(100% - 20px); /* Even more edge-to-edge */
+    max-height: 55px; /* More compact */
+    padding: 6px 10px; /* Minimal padding */
+    border-left-width: 3px; /* Thinner border */
+  }
+
+  #quotedText {
+    max-height: 40px;
+    font-size: 12px; /* Smaller text for very small screens */
+  }
+
+  #cancelQuoteBtn {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  #quoteBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+/* Special landscape mode adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .quoted-preview {
+    bottom: 65px; /* Higher up in landscape */
+    max-height: 50px; /* More compact */
+  }
+
+  #quotedText {
+    max-height: 35px;
+  }
+}
